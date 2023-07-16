@@ -1,0 +1,137 @@
+<!-- task_list.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Kanban Board</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+<div class="container">
+  <h1>Kanban Board</h1>
+  <div class="create-button">
+    <button><a href="{% url 'task_create' %}">Add Task</a></button>
+  </div>
+  <div class="task-columns">
+    <div class="column" data-column-id="To Do" data-status="{{ task.status }}">
+      <h2>To Do</h2>
+        <hr>
+      {% for task in tasks %}
+        {% if task.status == 'To Do' %}
+          <div class="task-card draggable-card" data-id="{{ task.id }}">
+            <h3>{{ task.title }}</h3>
+            <p><span>Description:</span> {{ task.description }}</p>
+            <p><span>Status:</span><i class="task-status">{{ task.status }} </i></p>
+            <div class="button-container">
+              <button><a href="{% url 'task_update' task.id %}" class="update-button">Edit</a></button>
+              <button class="delete-button"><a href="{% url 'task_delete' task.id %}">Delete</a></button>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="column" data-column-id="In Progress" data-status="{{ task.status }}">
+      <h2>In Progress</h2>
+      <hr>
+      {% for task in tasks %}
+        {% if task.status == 'In Progress' %}
+          <div class="task-card draggable-card" data-id="{{ task.id }}">
+            <h3>{{ task.title }}</h3>
+            <p><span>Description:</span> {{ task.description }}</p>
+            <p><span>Status:</span><i class="task-status">{{ task.status }} </i></p>
+            <div class="button-container">
+              <button><a href="{% url 'task_update' task.id %}" class="update-button">Edit</a></button>
+              <button class="delete-button"><a href="{% url 'task_delete' task.id %}">Delete</a></button>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="column" data-column-id="Completed" data-status="{{ task.status }}">
+      <h2>Completed</h2>
+      <hr>
+      {% for task in tasks %}
+        {% if task.status == 'Completed' %}
+          <div class="task-card draggable-card" data-id="{{ task.id }}">
+            <h3>{{ task.title }}</h3>
+            <p><span>Description:</span> {{ task.description }}</p>
+            <p><span>Status:</span><i class="task-status">{{ task.status }} </i></p>
+            <div class="button-container">
+              <button><a href="{% url 'task_update' task.id %}" class="update-button">Edit</a></button>
+              <button class="delete-button"><a href="{% url 'task_delete' task.id %}">Delete</a></button>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<!-- Your HTML code -->
+<!-- ... -->
+
+<!-- Your HTML code -->
+<!-- ... -->
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script>
+  $(document).ready(function () {
+    let offsetX, offsetY; // Variables to store cursor offset from the card's position
+
+    $(".task-card").draggable({
+      revert:true,
+      cursor: "move",
+      zIndex: 100,
+      start: function (event, ui) {
+        $(this).css("z-index", 101); // Bring the dragged card to the top
+         
+      },
+      drag: function(){
+        $(this).removeAttr('style');
+      },
+      stop: function () {
+        
+        $(this).css("z-index", 100); // Reset the z-index after dragging stops
+      },
+    });
+
+    $(".column").droppable({
+      accept: ".task-card",
+      drop: function (event, ui) {
+        const droppedCard = ui.draggable;
+        const taskId = droppedCard.data("id");
+        const columnId = $(this).data("column-id");
+
+        // Send an AJAX request to update the task's status in the database
+        $.ajax({
+          type: "POST",
+          url: "/update_task_status/",
+          data: {
+            task_id: taskId,
+            column_id: columnId,
+            csrfmiddlewaretoken: '{{ csrf_token }}', // Add CSRF token for security
+          },
+          success: function (response) {
+            // Handle success response, e.g., update the card's status on the frontend
+
+            const statusElement = droppedCard.find(".task-status");
+            statusElement.text(response.status); // Update the task status with the response status
+
+            // Move the card to the new column
+            const column = $(`[data-column-id="${columnId}"]`);
+            droppedCard.appendTo(column);
+          },
+          error: function (error) {
+            // Handle error if needed
+          },
+        });
+      },
+    });
+   
+  });
+</script>
+</body>
+</html>

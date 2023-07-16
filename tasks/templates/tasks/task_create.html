@@ -1,0 +1,49 @@
+{% load static %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Kanban Board</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+
+<!-- task_create.html -->
+
+
+<!-- task_create.html -->
+
+
+{% block content %}
+<body>
+<div class="container">
+   
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            <h1>Create Task</h1>
+            <div class="form-group a">
+                <label for="title">Title:</label>
+                <input type="text" name="title" required>
+            </div>
+            <div class="form-group a">
+                <label for="description">Description:</label>
+                <textarea name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select name="status" required>
+                    <option value="To Do">To Do</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <div class="form-buttons">
+              <button type="submit" class="create-button">Create Task</button>
+              <a href="{% url 'task_list' %}" class="cancel-button">Cancel</a>
+          </div>
+        </form>
+    </div>
+</div>
+</body>
+{% endblock %}
+
